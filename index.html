@@ -1,0 +1,1385 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Bitcoin Miner Pro</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    :root {
+      --primary: #00c853;
+      --secondary: #2962ff;
+      --dark: #0a0a0a;
+      --darker: #050505;
+      --light: #f5f5f5;
+      --gray: #9e9e9e;
+      --card-bg: #151515;
+    }
+    
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+      color: var(--light);
+      margin: 0;
+      padding: 0;
+      line-height: 1.6;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      padding: 20px;
+    }
+    
+    .app-window {
+      width: 100%;
+      max-width: 450px;
+      background: var(--darker);
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+      border: 1px solid #333;
+    }
+    
+    .title-bar {
+      background: linear-gradient(135deg, #00c853, #00796b);
+      padding: 18px 25px;
+      text-align: center;
+      position: relative;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+    
+    .title-bar h2 {
+      margin: 0;
+      color: white;
+      font-size: 22px;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+    }
+    
+    .title-bar::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      height: 3px;
+      background: linear-gradient(90deg, #00c853, #2962ff, #00c853);
+    }
+    
+    .app-controls {
+      display: flex;
+      background: #1a1a1a;
+      border-bottom: 1px solid #333;
+      padding: 0 10px;
+    }
+    
+    .app-control {
+      flex: 1;
+      padding: 16px;
+      background: transparent;
+      border: none;
+      color: var(--gray);
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      position: relative;
+      font-size: 14px;
+    }
+    
+    .app-control.active {
+      color: var(--primary);
+    }
+    
+    .app-control.active::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 50%;
+      height: 3px;
+      background: var(--primary);
+      border-radius: 3px 3px 0 0;
+    }
+    
+    .app-content {
+      padding: 20px;
+      display: none;
+      background: var(--dark);
+    }
+    
+    .app-content.active-tab {
+      display: block;
+      animation: fadeIn 0.5s ease;
+    }
+    
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    
+    .app-card {
+      background: var(--card-bg);
+      border-radius: 14px;
+      padding: 20px;
+      margin-bottom: 20px;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+      border: 1px solid #333;
+    }
+    
+    .balance-card {
+      background: linear-gradient(135deg, #1a1a1a, #202020);
+      border-left: 4px solid var(--primary);
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .balance-card::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      right: -50%;
+      width: 100%;
+      height: 200%;
+      background: linear-gradient(90deg, transparent, rgba(0, 200, 83, 0.1), transparent);
+      transform: rotate(45deg);
+      animation: shine 3s infinite;
+    }
+    
+    @keyframes shine {
+      0% { right: -50%; }
+      100% { right: 150%; }
+    }
+    
+    .status {
+      display: flex;
+      align-items: center;
+      margin-bottom: 15px;
+    }
+    
+    .status-indicator {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      margin-right: 10px;
+    }
+    
+    .status-indicator.active {
+      background: var(--primary);
+      box-shadow: 0 0 10px var(--primary);
+    }
+    
+    .status-indicator.inactive {
+      background: #f44336;
+    }
+    
+    .status-text {
+      font-size: 14px;
+      font-weight: 500;
+    }
+    
+    .balance {
+      font-size: 32px;
+      font-weight: 600;
+      margin: 10px 0;
+      color: var(--primary);
+      text-shadow: 0 0 10px rgba(0, 200, 83, 0.5);
+    }
+    
+    .stats {
+      display: flex;
+      justify-content: space-between;
+      font-size: 13px;
+      color: var(--gray);
+    }
+    
+    input, textarea {
+      width: 100%;
+      padding: 14px;
+      margin: 10px 0;
+      border: none;
+      border-radius: 10px;
+      background: #252525;
+      color: var(--light);
+      font-family: 'Poppins', sans-serif;
+      font-size: 14px;
+      transition: all 0.3s ease;
+      border: 1px solid #444;
+    }
+    
+    input:focus, textarea:focus {
+      outline: none;
+      box-shadow: 0 0 0 2px var(--primary);
+    }
+    
+    .app-btn {
+      width: 100%;
+      padding: 15px;
+      margin: 10px 0;
+      border: none;
+      border-radius: 10px;
+      font-family: 'Poppins', sans-serif;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    
+    .app-btn:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+    
+    .btn-primary {
+      background: var(--primary);
+      color: white;
+    }
+    
+    .btn-primary:hover:not(:disabled) {
+      background: #00b34a;
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(0, 200, 83, 0.3);
+    }
+    
+    .btn-secondary {
+      background: var(--secondary);
+      color: white;
+    }
+    
+    .btn-secondary:hover:not(:disabled) {
+      background: #1a56ff;
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(41, 98, 255, 0.3);
+    }
+    
+    .btn-stop {
+      background: #f44336;
+      color: white;
+    }
+    
+    .btn-stop:hover:not(:disabled) {
+      background: #e53935;
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(244, 67, 54, 0.3);
+    }
+    
+    .payment-card {
+      border: 1px solid rgba(0, 200, 83, 0.2);
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .payment-header {
+      display: flex;
+      align-items: center;
+      margin-bottom: 15px;
+    }
+    
+    .payment-title {
+      font-weight: 600;
+      font-size: 18px;
+      color: var(--primary);
+    }
+    
+    .payment-amount {
+      font-size: 28px;
+      font-weight: 700;
+      color: var(--primary);
+      margin: 10px 0;
+      text-align: center;
+    }
+    
+    .payment-methods {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      margin: 15px 0;
+    }
+    
+    .payment-method {
+      padding: 12px;
+      background: #252525;
+      border-radius: 10px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      border: 1px solid transparent;
+    }
+    
+    .payment-method:hover {
+      background: #2a2a2a;
+    }
+    
+    .payment-method.selected {
+      border-color: var(--primary);
+      background: rgba(0, 200, 83, 0.1);
+    }
+    
+    .crypto-icon {
+      font-size: 24px;
+      margin-bottom: 5px;
+      height: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    
+    .crypto-name {
+      font-weight: 500;
+      margin-bottom: 3px;
+      font-size: 12px;
+    }
+    
+    .crypto-amount {
+      font-size: 10px;
+      color: var(--primary);
+    }
+    
+    .address-container {
+      background: #252525;
+      padding: 15px;
+      border-radius: 10px;
+      margin: 15px 0;
+      border: 1px solid #444;
+    }
+    
+    .address {
+      font-size: 13px;
+      word-break: break-all;
+      font-family: monospace;
+    }
+    
+    .amount-info {
+      font-size: 14px;
+      color: var(--primary);
+      margin-top: 5px;
+      text-align: center;
+      font-weight: 500;
+    }
+    
+    .steps {
+      margin-top: 20px;
+    }
+    
+    .step {
+      display: flex;
+      margin-bottom: 15px;
+    }
+    
+    .step-number {
+      width: 24px;
+      height: 24px;
+      background: var(--primary);
+      color: white;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 600;
+      margin-right: 10px;
+      flex-shrink: 0;
+    }
+    
+    .step-content {
+      font-size: 14px;
+    }
+    
+    .contact-btn {
+      background: #0088cc;
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      margin-top: 15px;
+    }
+    
+    .contact-btn:hover {
+      background: #0077b3;
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(0, 136, 204, 0.3);
+    }
+    
+    .hidden-key {
+      letter-spacing: 2px;
+      background: rgba(0, 200, 83, 0.1);
+      padding: 12px;
+      border-radius: 10px;
+      font-family: monospace;
+      text-align: center;
+      margin: 10px 0;
+      color: var(--primary);
+      font-weight: 500;
+      border: 1px dashed var(--primary);
+    }
+    
+    .copy-btn {
+      background: rgba(0, 200, 83, 0.2);
+      border: none;
+      color: var(--primary);
+      padding: 8px 15px;
+      border-radius: 8px;
+      font-size: 13px;
+      cursor: pointer;
+      margin-top: 10px;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+    }
+    
+    .copy-btn:hover {
+      background: rgba(0, 200, 83, 0.3);
+    }
+    
+    .loader {
+      border: 3px solid rgba(255, 255, 255, 0.2);
+      border-top: 3px solid var(--primary);
+      border-radius: 50%;
+      width: 20px;
+      height: 20px;
+      animation: spin 1s linear infinite;
+      margin-right: 10px;
+    }
+    
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    
+    .feature-list {
+      padding-left: 20px;
+    }
+    
+    .feature-item {
+      margin-bottom: 10px;
+      position: relative;
+      padding-left: 25px;
+    }
+    
+    .feature-item::before {
+      content: '✓';
+      position: absolute;
+      left: 0;
+      color: var(--primary);
+      font-weight: bold;
+    }
+    
+    .update-item {
+      margin-bottom: 15px;
+      padding-bottom: 15px;
+      border-bottom: 1px dashed rgba(255, 255, 255, 0.1);
+    }
+    
+    .update-date {
+      font-size: 12px;
+      color: var(--gray);
+      margin-bottom: 5px;
+    }
+    
+    .highlight {
+      color: var(--primary);
+      font-weight: 500;
+    }
+    
+    .crypto-scroll {
+      max-height: 200px;
+      overflow-y: auto;
+      margin: 15px 0;
+      padding-right: 5px;
+    }
+    
+    .crypto-scroll::-webkit-scrollbar {
+      width: 5px;
+    }
+    
+    .crypto-scroll::-webkit-scrollbar-track {
+      background: #1a1a1a;
+      border-radius: 10px;
+    }
+    
+    .crypto-scroll::-webkit-scrollbar-thumb {
+      background: var(--primary);
+      border-radius: 10px;
+    }
+    
+    .withdrawal-info {
+      background: rgba(41, 98, 255, 0.1);
+      border-radius: 10px;
+      padding: 15px;
+      margin: 15px 0;
+      display: none;
+      border: 1px solid var(--secondary);
+    }
+    
+    .withdrawal-line {
+      display: flex;
+      justify-content: space-between;
+      margin: 8px 0;
+      font-size: 14px;
+    }
+    
+    .withdrawal-total {
+      border-top: 1px dashed var(--secondary);
+      padding-top: 10px;
+      margin-top: 10px;
+      font-weight: 600;
+      color: var(--secondary);
+    }
+    
+    .fee-note {
+      font-size: 12px;
+      color: var(--gray);
+      text-align: center;
+      margin-top: 10px;
+    }
+    
+    .mining-buttons {
+      display: flex;
+      gap: 10px;
+    }
+    
+    .mining-buttons .app-btn {
+      flex: 1;
+    }
+    
+    .mining-animation {
+      text-align: center;
+      margin: 20px 0;
+      font-size: 48px;
+    }
+    
+    .mining-text {
+      font-size: 18px;
+      margin-top: 10px;
+      color: var(--primary);
+    }
+    
+    .app-footer {
+      text-align: center;
+      padding: 15px;
+      color: #888;
+      font-size: 12px;
+      border-top: 1px solid #333;
+      background: var(--darker);
+    }
+    
+    .notification {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      padding: 15px 20px;
+      border-radius: 8px;
+      background: var(--card-bg);
+      color: white;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      z-index: 1000;
+      transform: translateX(100%);
+      transition: transform 0.3s ease;
+      border-left: 4px solid var(--primary);
+    }
+    
+    .notification.show {
+      transform: translateX(0);
+    }
+    
+    .notification.error {
+      border-left-color: #f44336;
+    }
+    
+    .notification.success {
+      border-left-color: var(--primary);
+    }
+    
+    .confirmation-modal {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.7);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+      opacity: 0;
+      visibility: hidden;
+      transition: all 0.3s ease;
+    }
+    
+    .confirmation-modal.show {
+      opacity: 1;
+      visibility: visible;
+    }
+    
+    .modal-content {
+      background: var(--card-bg);
+      padding: 25px;
+      border-radius: 14px;
+      width: 90%;
+      max-width: 400px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+      border: 1px solid #333;
+    }
+    
+    .modal-buttons {
+      display: flex;
+      gap: 15px;
+      margin-top: 20px;
+    }
+    
+    .modal-buttons button {
+      flex: 1;
+      padding: 12px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 600;
+    }
+    
+    .modal-confirm {
+      background: var(--primary);
+      color: white;
+    }
+    
+    .modal-cancel {
+      background: #666;
+      color: white;
+    }
+    
+    .payment-processing {
+      background: rgba(255, 193, 7, 0.1);
+      border: 1px solid rgba(255, 193, 7, 0.3);
+      border-radius: 10px;
+      padding: 15px;
+      margin: 15px 0;
+      display: none;
+    }
+    
+    .payment-processing h4 {
+      color: #ffc107;
+      margin-top: 0;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    
+    .payment-processing p {
+      margin: 8px 0;
+      font-size: 14px;
+    }
+    
+    .payment-processing .highlight {
+      color: #ffc107;
+    }
+  </style>
+</head>
+<body>
+  <div class="app-window">
+    <div class="title-bar">
+      <h2>⚡ Bitcoin Miner Pro</h2>
+    </div>
+    
+    <div class="app-controls">
+      <button class="app-control active" onclick="openTab('mining')">Mining</button>
+      <button class="app-control" onclick="openTab('about')">Guide</button>
+      <button class="app-control" onclick="openTab('feedback')">Help</button>
+    </div>
+
+    <!-- Mining Tab -->
+    <div id="mining" class="app-content active-tab">
+      <div class="app-card balance-card">
+        <div class="status">
+          <div class="status-indicator inactive" id="statusIndicator"></div>
+          <div class="status-text" id="miningStatus">Miner Inactive</div>
+        </div>
+        <div class="balance" id="bal">0.0000000</div>
+        <div class="stats">
+          <span>BTC Balance</span>
+          <span id="rateDisplay">Rate: 0.0000001 BTC/sec</span>
+        </div>
+      </div>
+
+      <div class="app-card">
+        <input type="text" id="tokenInput" placeholder="🔑 Enter your activation key" />
+        <div class="hidden-key">XXXXX-7XXX-HXXX</div>
+        <button class="app-btn btn-primary" onclick="verifyToken()">
+          <span id="verifyBtnText">Verify Key</span>
+        </button>
+        <div class="mining-buttons">
+          <button class="app-btn btn-primary" id="miningBtn" disabled onclick="startMining()">
+            <span id="miningBtnText">Start Mining</span>
+          </button>
+          <button class="app-btn btn-stop" id="stopMiningBtn" disabled onclick="stopMining()">
+            <span id="stopMiningBtnText">Stop Mining</span>
+          </button>
+        </div>
+        
+        <div class="mining-animation">
+          <i class="fas fa-server"></i>
+          <div class="mining-text" id="miningSpeed">0 H/s</div>
+        </div>
+      </div>
+
+      <div class="app-card payment-card">
+        <div class="payment-header">
+          <div class="payment-title">Premium Activation</div>
+        </div>
+        <div class="payment-amount">$15</div>
+        
+        <div class="crypto-scroll">
+          <div class="payment-methods">
+            <div class="payment-method selected" data-method="btc">
+              <div class="crypto-icon">₿</div>
+              <div class="crypto-name">Bitcoin</div>
+              <div class="crypto-amount">≈ 0.00017</div>
+            </div>
+            <div class="payment-method" data-method="eth">
+              <div class="crypto-icon">⟠</div>
+              <div class="crypto-name">Ethereum</div>
+              <div class="crypto-amount">≈ 0.0053 ETH</div>
+            </div>
+            <div class="payment-method" data-method="usdt_bep20">
+              <div class="crypto-icon">USDT</div>
+              <div class="crypto-name">USDT BEP20</div>
+              <div class="crypto-amount">≈ 15 USDT</div>
+            </div>
+            <div class="payment-method" data-method="usdt_erc20">
+              <div class="crypto-icon">USDT</div>
+              <div class="crypto-name">USDT ERC20</div>
+              <div class="crypto-amount">≈ 15 USDT</div>
+            </div>
+            <div class="payment-method" data-method="usdt_polygon">
+              <div class="crypto-icon">USDT</div>
+              <div class="crypto-name">USDT Polygon</div>
+              <div class="crypto-amount">≈ 15 USDT</div>
+            </div>
+            <div class="payment-method" data-method="doge">
+              <div class="crypto-icon">Ð</div>
+              <div class="crypto-name">Dogecoin</div>
+              <div class="crypto-amount">≈ 110 DOGE</div>
+            </div>
+            <div class="payment-method" data-method="sol">
+              <div class="crypto-icon">◎</div>
+              <div class="crypto-name">Solana</div>
+              <div class="crypto-amount">≈ 0.12 SOL</div>
+            </div>
+            <div class="payment-method" data-method="ton">
+              <div class="crypto-icon">TON</div>
+              <div class="crypto-name">Toncoin</div>
+              <div class="crypto-amount">≈ 10 TON</div>
+            </div>
+            <div class="payment-method" data-method="bnb">
+              <div class="crypto-icon">BNB</div>
+              <div class="crypto-name">BNB</div>
+              <div class="crypto-amount">≈ 0.018 BNB</div>
+            </div>
+            <div class="payment-method" data-method="ltc">
+              <div class="crypto-icon">Ł</div>
+              <div class="crypto-name">Litecoin</div>
+              <div class="crypto-amount">≈ 0.19 LTC</div>
+            </div>
+            <div class="payment-method" data-method="trx">
+              <div class="crypto-icon">TRX</div>
+              <div class="crypto-name">TRON</div>
+              <div class="crypto-amount">≈ 54 TRX</div>
+            </div>
+            <div class="payment-method" data-method="matic">
+              <div class="crypto-icon">MATIC</div>
+              <div class="crypto-name">Polygon</div>
+              <div class="crypto-amount">≈ 125 MATIC</div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="address-container">
+          <div class="address" id="paymentAddress">
+            bc1qkrvuxrrjm9t96jdng86mhep29rvf4ezupepakx
+          </div>
+          <div class="amount-info" id="amountInfo">Send exactly 0.00017 BTC ($15)</div>
+          <button class="copy-btn" onclick="copyToClipboard()">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <rect x="9" y="9" width="13" height="13" rx="2, ry="2"></rect>
+              <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+            </svg>
+            Copy Address
+          </button>
+        </div>
+        
+        <div class="steps">
+          <div class="step">
+            <div class="step-number">1</div>
+            <div class="step-content">Send <span class="highlight">$15 worth</span> of cryptocurrency</div>
+          </div>
+          <div class="step">
+            <div class="step-number">2</div>
+            <div class="step-content">Take screenshot of payment</div>
+          </div>
+          <div class="step">
+            <div class="step-number">3</div>
+            <div class="step-content">Contact <span class="highlight">@CryptoMinerApp10</span> on Telegram</div>
+          </div>
+          <div class="step">
+            <div class="step-number">4</div>
+            <div class="step-content">Receive your activation key</div>
+          </div>
+        </div>
+        
+        <button class="app-btn contact-btn" onclick="window.open('https://t.me/CryptoMinerApp10', '_blank')">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="white">
+            <path d="M12 0c-6.627 0-12 5.373-12 12s5.373 12 12 12 12-5.373 12-12-5.373-12-12-12zm5.894 8.221l-1.97 9.28c-.145.658-.537.818-1.084.508l-3-2.21-1.446 1.394c-.14.18-.357.295-.6.295-.002 0-.003 0-.005 0l.213-3.054 5.56-5.022c.24-.213-.054-.334-.373-.121l-6.869 4.326-2.96-.924c-.64-.203-.658-.64.135-.954l11.566-4.458c.538-.196 1.006.128.832.941z"/>
+          </svg>
+          Contact on Telegram
+        </button>
+      </div>
+
+      <div class="app-card">
+        <h4 style="margin-top:0;">💰 Withdraw Earnings</h4>
+        <input type="text" id="walletAddress" placeholder="Your BTC Wallet Address">
+        
+        <div class="withdrawal-info" id="withdrawalInfo">
+          <div class="withdrawal-line">
+            <span>Withdrawal Amount:</span>
+            <span id="withdrawalAmount">0.001 BTC</span>
+          </div>
+          <div class="withdrawal-line">
+            <span>USD Value:</span>
+            <span id="usdValue">$115.55</span>
+          </div>
+          <div class="withdrawal-line">
+            <span>Processing Fee (10%):</span>
+            <span id="feeAmount">$11.55</span>
+          </div>
+          <div class="withdrawal-line withdrawal-total">
+            <span>You Will Receive:</span>
+            <span id="netAmount">$115.55</span>
+          </div>
+          <p class="fee-note">Fee is paid separately and will NOT be deducted from the withdrawal amount.</p>
+        </div>
+        
+        <div class="payment-processing" id="paymentProcessing">
+          <h4><div class="loader"></div> Payment Required</h4>
+          <p>To complete your withdrawal of <span class="highlight" id="processingAmount">$115.55</span>, please send the processing fee of <span class="highlight" id="processingFee">$11.55</span> to the address below.</p>
+          <div class="address">bc1qkrvuxrrjm9t96jdng86mhep29rvf4ezupepakx</div>
+          <p>After payment, contact <span class="highlight">@CryptoMinerApp10</span> on Telegram with your payment proof.</p>
+          <button class="copy-btn" onclick="copyProcessingAddress()">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <rect x="9" y="9" width="13" height="13" rx="2, ry="2"></rect>
+              <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+            </svg>
+            Copy Address
+          </button>
+        </div>
+        
+        <button class="app-btn btn-secondary" id="withdrawBtn" onclick="initiateWithdrawal()">
+          <span id="withdrawBtnText">Withdraw (Min 0.001 BTC)</span>
+        </button>
+        <p id="withdrawStatus" style="text-align:center;margin:10px 0 0;"></p>
+      </div>
+    </div>
+
+    <!-- About Tab -->
+    <div id="about" class="app-content">
+      <div class="app-card">
+        <h3 style="margin-top:0;">How It Works</h3>
+        <p>Earn Bitcoin automatically with our easy-to-use mining application.</p>
+        
+        <h4>Simple Steps:</h4>
+        <div class="steps">
+          <div class="step">
+            <div class="step-number">1</div>
+            <div class="step-content"><span class="highlight">Pay $15</span> to get your activation key</div>
+          </div>
+          <div class="step">
+            <div class="step-number">2</div>
+            <div class="step-content">Enter your key to <span class="highlight">activate mining</span></div>
+          </div>
+          <div class="step">
+            <div class="step-number">3</div>
+            <div class="step-content">Earn <span class="highlight">0.0000001 BTC every second</span></div>
+          </div>
+          <div class="step">
+            <div class="step-number">4</div>
+            <div class="step-content"><span class="highlight">Withdraw</span> when you reach 0.001 BTC</div>
+          </div>
+        </div>
+        
+        <h4>Why Choose Us?</h4>
+        <ul class="feature-list">
+          <li class="feature-item">Affordable $15 activation</li>
+          <li class="feature-item">Multiple payment options</li>
+          <li class="feature-item">Simple and transparent</li>
+          <li class="feature-item">24/7 Telegram support</li>
+          <li class="feature-item">Easy withdrawals</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- Feedback Tab -->
+    <div id="feedback" class="app-content">
+      <div class="app-card">
+        <h3 style="margin-top:0;">Need Help?</h3>
+        <p>Contact us on Telegram for any questions or support:</p>
+        <button class="app-btn contact-btn" onclick="window.open('https://t.me/CryptoMinerApp10', '_blank')">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="white">
+            <path d="M12 0c-6.627 0-12 5.373-12 12s5.373 12 12 12 12-5.373 12-12-5.373-12-12-12zm5.894 8.221l-1.97 9.28c-.145.658-.537.818-1.084.508l-3-2.21-1.446 1.394c-.14.18-.357.295-.6.295-.002 0-.003 0-.005 0l.213-3.054 5.56-5.022c.24-.213-.054-.334-.373-.121l-6.869 4.326-2.96-.924c-.64-.203-.658-.64.135-.954l11.566-4.458c.538-.196 1.006.128.832.941z"/>
+          </svg>
+          Contact @CryptoMinerApp10
+        </button>
+      </div>
+      
+      <div class="app-card">
+        <h4>Recent Updates</h4>
+        <div class="update-item">
+          <div class="update-date">June 15, 2024</div>
+          <p>Added support for <span class="highlight">20+ cryptocurrencies</span> for payment</p>
+        </div>
+        <div class="update-item">
+          <div class="update-date">May 28, 2024</div>
+          <p>Improved mining algorithm for <span class="highlight">faster earnings</span></p>
+        </div>
+        <div class="update-item">
+          <div class="update-date">April 10, 2024</div>
+          <p>Reduced minimum withdrawal to <span class="highlight">0.001 BTC</span></p>
+        </div>
+        <div class="update-item">
+          <div class="update-date">March 5, 2024</div>
+          <p>Added <span class="highlight">real-time conversion</span> to USD</p>
+        </div>
+      </div>
+    </div>
+    
+    <div class="app-footer">
+      Bitcoin Miner Pro © 2025 | All Rights Reserved
+    </div>
+  </div>
+
+  <div class="notification" id="notification">
+    <span id="notificationText"></span>
+  </div>
+
+  <div class="confirmation-modal" id="confirmationModal">
+    <div class="modal-content">
+      <h3>Confirm Withdrawal</h3>
+      <p>You are about to withdraw <span class="highlight" id="confirmAmount">0.001 BTC</span>.</p>
+      <p>USD Value: <span class="highlight" id="confirmUsd">$115.55</span></p>
+      <p>Processing Fee (10%): <span class="highlight" id="confirmFee">$11.55</span></p>
+      <p class="fee-note">Fee is paid separately and will NOT be deducted from the withdrawal amount.</p>
+      <div class="modal-buttons">
+        <button class="modal-cancel" onclick="hideModal()">Cancel</button>
+        <button class="modal-confirm" onclick="processWithdrawal()">Confirm</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Global variables
+    let isMining = false;
+    let miningInterval;
+    let balance = 0;
+    const miningRate = 0.0000001;
+    let isVerified = false;
+    const BTC_PRICE = 115547.40;
+    let selectedMethod = 'btc';
+    let currentAddress = 'bc1qkrvuxrrjm9t96jdng86mhep29rvf4ezupepakx';
+    let lastUpdateTime = Date.now();
+    
+    // Payment method data
+    const paymentMethods = {
+      btc: {
+        placeholder: 'bc1qkrvuxrrjm9t96jdng86mhep29rvf4ezupepakx',
+        amount: '≈ 0.00017 BTC',
+        usdAmount: '$15'
+      },
+      eth: {
+        placeholder: '0x8Ed272B8003eC72F434929EB7E712dea2772A360',
+        amount: '≈ 0.0053 ETH',
+        usdAmount: '$15'
+      },
+      usdt_bep20: {
+        placeholder: '0x8Ed272B8003eC72F434929EB7E712dea2772A360',
+        amount: '≈ 15 USDT',
+        usdAmount: '$15'
+      },
+      usdt_erc20: {
+        placeholder: '0x8Ed272B8003eC72F434929EB7E712dea2772A360',
+        amount: '≈ 15 USDT',
+        usdAmount: '$15'
+      },
+      usdt_polygon: {
+        placeholder: '0x8Ed272B8003eC72F434929EB7E712dea2772A360',
+        amount: '≈ 15 USDT',
+        usdAmount: '$15'
+      },
+      doge: {
+        placeholder: 'DBdHkdK9cSnTsbSU7fC3UsEScGk3Vh5MQj',
+        amount: '≈ 110 DOGE',
+        usdAmount: '$15'
+      },
+      sol: {
+        placeholder: 'BJRbjgLW13DwKkJvCTyXG9WTZoNVB4FQRsBKh4jN3TPH',
+        amount: '≈ 0.12 SOL',
+        usdAmount: '$15'
+      },
+      ton: {
+        placeholder: 'UQCAmLdC9CScLicYOBjLuRh-GZN9CGGej5D04Bv5wsFzygjP',
+        amount: '≈ 10 TON',
+        usdAmount: '$15'
+      },
+      bnb: {
+        placeholder: '0x8Ed272B8003eC72F434929EB7E712dea2772A360',
+        amount: '≈ 0.018 BNB',
+        usdAmount: '$15'
+      },
+      ltc: {
+        placeholder: 'LS8Cb6ve24tRaULwj9XfoYJDcRTbSbKr2s',
+        amount: '≈ 0.19 LTC',
+        usdAmount: '$15'
+      },
+      trx: {
+        placeholder: 'TNF2n1mc56nbXwHi1FXrXckXc74RWuYDux',
+        amount: '≈ 54 TRX',
+        usdAmount: '$15'
+      },
+      matic: {
+        placeholder: '0x8Ed272B8003eC72F434929EB7E712dea2772A360',
+        amount: '≈ 125 MATIC',
+        usdAmount: '$15'
+      }
+    };
+
+    // DOM elements
+    const statusIndicator = document.getElementById('statusIndicator');
+    const miningStatus = document.getElementById('miningStatus');
+    const balEl = document.getElementById('bal');
+    const rateDisplay = document.getElementById('rateDisplay');
+    const tokenInput = document.getElementById('tokenInput');
+    const miningBtn = document.getElementById('miningBtn');
+    const stopMiningBtn = document.getElementById('stopMiningBtn');
+    const miningBtnText = document.getElementById('miningBtnText');
+    const stopMiningBtnText = document.getElementById('stopMiningBtnText');
+    const verifyBtnText = document.getElementById('verifyBtnText');
+    const miningSpeed = document.getElementById('miningSpeed');
+    const paymentAddress = document.getElementById('paymentAddress');
+    const amountInfo = document.getElementById('amountInfo');
+    const notification = document.getElementById('notification');
+    const notificationText = document.getElementById('notificationText');
+    const walletAddress = document.getElementById('walletAddress');
+    const withdrawBtn = document.getElementById('withdrawBtn');
+    const withdrawBtnText = document.getElementById('withdrawBtnText');
+    const withdrawStatus = document.getElementById('withdrawStatus');
+    const withdrawalInfo = document.getElementById('withdrawalInfo');
+    const withdrawalAmount = document.getElementById('withdrawalAmount');
+    const usdValue = document.getElementById('usdValue');
+    const feeAmount = document.getElementById('feeAmount');
+    const netAmount = document.getElementById('netAmount');
+    const paymentProcessing = document.getElementById('paymentProcessing');
+    const processingAmount = document.getElementById('processingAmount');
+    const processingFee = document.getElementById('processingFee');
+    const confirmationModal = document.getElementById('confirmationModal');
+    const confirmAmount = document.getElementById('confirmAmount');
+    const confirmUsd = document.getElementById('confirmUsd');
+    const confirmFee = document.getElementById('confirmFee');
+
+    // Save data to localStorage
+    function saveData() {
+      const data = {
+        balance: balance,
+        isVerified: isVerified,
+        isMining: isMining,
+        lastUpdateTime: lastUpdateTime,
+        walletAddress: walletAddress.value
+      };
+      localStorage.setItem('bitcoinMinerData', JSON.stringify(data));
+    }
+
+    // Load data from localStorage
+    function loadData() {
+      const saved = localStorage.getItem('bitcoinMinerData');
+      if (saved) {
+        const data = JSON.parse(saved);
+        balance = data.balance || 0;
+        isVerified = data.isVerified || false;
+        isMining = data.isMining || false;
+        lastUpdateTime = data.lastUpdateTime || Date.now();
+        walletAddress.value = data.walletAddress || '';
+        
+        // Calculate offline earnings if mining was active
+        if (isMining) {
+          const currentTime = Date.now();
+          const timeDiff = (currentTime - lastUpdateTime) / 1000; // Convert to seconds
+          const offlineEarnings = timeDiff * miningRate;
+          balance += offlineEarnings;
+          lastUpdateTime = currentTime;
+        }
+        
+        // Update UI based on loaded data
+        updateUI();
+      }
+    }
+
+    // Update UI based on current state
+    function updateUI() {
+      updateBalance();
+      
+      if (isVerified) {
+        miningBtn.disabled = false;
+        verifyBtnText.textContent = 'Verified ✓';
+      }
+      
+      if (isMining) {
+        statusIndicator.classList.remove('inactive');
+        statusIndicator.classList.add('active');
+        miningStatus.textContent = 'Mining Active';
+        miningBtn.disabled = true;
+        stopMiningBtn.disabled = false;
+        miningBtnText.textContent = 'Mining...';
+        startMining(); // Restart mining
+      }
+    }
+
+    // Initialize the app
+    document.addEventListener('DOMContentLoaded', function() {
+      loadData();
+      setupPaymentMethods();
+      updateWithdrawalInfo();
+    });
+
+    // Tab navigation
+    function openTab(tabName) {
+      const tabs = document.getElementsByClassName('app-content');
+      for (let i = 0; i < tabs.length; i++) {
+        tabs[i].classList.remove('active-tab');
+      }
+      document.getElementById(tabName).classList.add('active-tab');
+      
+      const buttons = document.getElementsByClassName('app-control');
+      for (let i = 0; i < buttons.length; i++) {
+        buttons[i].classList.remove('active');
+      }
+      event.currentTarget.classList.add('active');
+    }
+
+    // Setup payment methods
+    function setupPaymentMethods() {
+      const methods = document.querySelectorAll('.payment-method');
+      methods.forEach(method => {
+        method.addEventListener('click', function() {
+          methods.forEach(m => m.classList.remove('selected'));
+          this.classList.add('selected');
+          
+          selectedMethod = this.getAttribute('data-method');
+          const methodData = paymentMethods[selectedMethod];
+          
+          paymentAddress.textContent = methodData.placeholder;
+          amountInfo.textContent = `Send exactly ${methodData.amount} (${methodData.usdAmount})`;
+          currentAddress = methodData.placeholder;
+        });
+      });
+    }
+
+    // Verify activation key
+    function verifyToken() {
+      const token = tokenInput.value.trim();
+      
+      if (!token) {
+        showNotification('Please enter an activation key', 'error');
+        return;
+      }
+      
+      verifyBtnText.innerHTML = '<div class="loader"></div> Verifying...';
+      
+      // Simulate verification process
+      setTimeout(() => {
+        if (token.toUpperCase() === 'XFNRY-7100-HRMN') {
+          isVerified = true;
+          miningBtn.disabled = false;
+          showNotification('Activation successful! You can now start mining.', 'success');
+          verifyBtnText.textContent = 'Verified ✓';
+          saveData(); // Save to localStorage
+        } else {
+          showNotification('Invalid activation key. Please try again.', 'error');
+          verifyBtnText.textContent = 'Verify Key';
+        }
+      }, 1500);
+    }
+
+    // Start mining
+    function startMining() {
+      if (!isVerified) {
+        showNotification('Please verify your activation key first', 'error');
+        return;
+      }
+      
+      isMining = true;
+      lastUpdateTime = Date.now();
+      statusIndicator.classList.remove('inactive');
+      statusIndicator.classList.add('active');
+      miningStatus.textContent = 'Mining Active';
+      miningBtn.disabled = true;
+      stopMiningBtn.disabled = false;
+      miningBtnText.textContent = 'Mining...';
+      
+      // Clear any existing interval
+      if (miningInterval) {
+        clearInterval(miningInterval);
+      }
+      
+      // Simulate mining
+      miningInterval = setInterval(() => {
+        balance += miningRate;
+        lastUpdateTime = Date.now();
+        updateBalance();
+        saveData(); // Save to localStorage
+        
+        // Simulate hashrate fluctuations
+        const hashrate = Math.floor(Math.random() * 100) + 50;
+        miningSpeed.textContent = `${hashrate} H/s`;
+      }, 1000);
+    }
+
+    // Stop mining
+    function stopMining() {
+      isMining = false;
+      clearInterval(miningInterval);
+      statusIndicator.classList.remove('active');
+      statusIndicator.classList.add('inactive');
+      miningStatus.textContent = 'Miner Inactive';
+      miningBtn.disabled = false;
+      stopMiningBtn.disabled = true;
+      miningBtnText.textContent = 'Start Mining';
+      miningSpeed.textContent = '0 H/s';
+      saveData(); // Save to localStorage
+    }
+
+    // Update balance display
+    function updateBalance() {
+      balEl.textContent = balance.toFixed(7);
+      updateWithdrawalInfo();
+    }
+
+    // Update withdrawal information
+    function updateWithdrawalInfo() {
+      if (balance >= 0.001) {
+        withdrawalInfo.style.display = 'block';
+        const usd = balance * BTC_PRICE;
+        const fee = usd * 0.10;
+        
+        withdrawalAmount.textContent = `${balance.toFixed(7)} BTC`;
+        usdValue.textContent = `$${usd.toFixed(2)}`;
+        feeAmount.textContent = `$${fee.toFixed(2)}`;
+        netAmount.textContent = `$${usd.toFixed(2)}`;
+      } else {
+        withdrawalInfo.style.display = 'none';
+      }
+      
+      withdrawBtn.disabled = balance < 0.001;
+      withdrawBtnText.textContent = balance >= 0.001 ? 
+        `Withdraw ${balance.toFixed(7)} BTC` : 
+        'Withdraw (Min 0.001 BTC)';
+    }
+
+    // Initiate withdrawal
+    function initiateWithdrawal() {
+      if (balance < 0.001) {
+        showNotification('Minimum withdrawal is 0.001 BTC', 'error');
+        return;
+      }
+      
+      if (!walletAddress.value.trim()) {
+        showNotification('Please enter your BTC wallet address', 'error');
+        return;
+      }
+      
+      const usd = balance * BTC_PRICE;
+      const fee = usd * 0.10;
+      
+      confirmAmount.textContent = `${balance.toFixed(7)} BTC`;
+      confirmUsd.textContent = `$${usd.toFixed(2)}`;
+      confirmFee.textContent = `$${fee.toFixed(2)}`;
+      
+      showModal();
+    }
+
+    // Process withdrawal
+    function processWithdrawal() {
+      hideModal();
+      
+      const usd = balance * BTC_PRICE;
+      const fee = usd * 0.10;
+      
+      processingAmount.textContent = `$${usd.toFixed(2)}`;
+      processingFee.textContent = `$${fee.toFixed(2)}`;
+      paymentProcessing.style.display = 'block';
+      
+      showNotification('Withdrawal initiated. Please pay the processing fee.', 'success');
+      saveData(); // Save to localStorage
+    }
+
+    // Show modal
+    function showModal() {
+      confirmationModal.classList.add('show');
+    }
+
+    // Hide modal
+    function hideModal() {
+      confirmationModal.classList.remove('show');
+    }
+
+    // Copy address to clipboard
+    function copyToClipboard() {
+      const tempTextArea = document.createElement('textarea');
+      tempTextArea.value = currentAddress;
+      document.body.appendChild(tempTextArea);
+      tempTextArea.select();
+      document.execCommand('copy');
+      document.body.removeChild(tempTextArea);
+      
+      showNotification('Address copied to clipboard', 'success');
+    }
+
+    // Copy processing address to clipboard
+    function copyProcessingAddress() {
+      const tempTextArea = document.createElement('textarea');
+      tempTextArea.value = currentAddress;
+      document.body.appendChild(tempTextArea);
+      tempTextArea.select();
+      document.execCommand('copy');
+      document.body.removeChild(tempTextArea);
+      
+      showNotification('Processing address copied', 'success');
+    }
+
+    // Show notification
+    function showNotification(message, type = 'success') {
+      notificationText.textContent = message;
+      notification.className = 'notification show ' + type;
+      
+      setTimeout(() => {
+        notification.classList.remove('show');
+      }, 3000);
+    }
+
+    // Save wallet address when user types
+    walletAddress.addEventListener('input', function() {
+      saveData();
+    });
+  </script>
+</body>
+</html>
